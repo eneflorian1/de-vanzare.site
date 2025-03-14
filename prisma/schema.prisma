@@ -1,0 +1,348 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model category {
+  id             Int        @id @default(autoincrement())
+  name           String
+  slug           String     @unique(map: "Category_slug_key")
+  parentId       Int?
+  description    String?    @db.Text
+  iconName       String?
+  order          Int?
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime
+  category       category?  @relation("categoryTocategory", fields: [parentId], references: [id], map: "Category_parentId_fkey")
+  other_category category[] @relation("categoryTocategory")
+  listing        listing[]
+
+  @@index([parentId], map: "Category_parentId_fkey")
+}
+
+model favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  listingId Int
+  createdAt DateTime @default(now())
+  listing   listing  @relation(fields: [listingId], references: [id], map: "Favorite_listingId_fkey")
+  user      user     @relation(fields: [userId], references: [id], map: "Favorite_userId_fkey")
+
+  @@unique([userId, listingId], map: "Favorite_userId_listingId_key")
+  @@index([listingId], map: "Favorite_listingId_fkey")
+}
+
+model image {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  order     Int      @default(0)
+  isPrimary Boolean  @default(false)
+  listingId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  listing   listing  @relation(fields: [listingId], references: [id], map: "Image_listingId_fkey")
+
+  @@index([listingId], map: "Image_listingId_idx")
+}
+
+model listing {
+  id              Int                 @id @default(autoincrement())
+  userId          Int
+  categoryId      Int
+  title           String
+  slug            String              @unique(map: "Listing_slug_key")
+  description     String              @db.Text
+  price           Decimal             @db.Decimal(15, 2)
+  currency        listing_currency    @default(RON)
+  condition       listing_condition   @default(UTILIZAT)
+  status          listing_status      @default(PENDING)
+  locationId      Int
+  viewsCount      Int                 @default(0)
+  isPremium       Boolean             @default(false)
+  isPromoted      Boolean             @default(false)
+  promotionEndsAt DateTime?
+  negotiable      Boolean             @default(false)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime
+  expiresAt       DateTime?
+  favorite        favorite[]
+  image           image[]
+  category        category            @relation(fields: [categoryId], references: [id], map: "Listing_categoryId_fkey")
+  location        location            @relation(fields: [locationId], references: [id], map: "Listing_locationId_fkey")
+  user            user                @relation(fields: [userId], references: [id], map: "Listing_userId_fkey")
+  listingimage    listingimage[]
+  validation      listingvalidation[]
+  message         message[]
+  report          report[]
+
+  @@index([categoryId], map: "Listing_categoryId_fkey")
+  @@index([locationId], map: "Listing_locationId_fkey")
+  @@index([userId], map: "Listing_userId_fkey")
+}
+
+model listingimage {
+  id        Int      @id @default(autoincrement())
+  listingId Int
+  imageUrl  String
+  order     Int      @default(0)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  listing   listing  @relation(fields: [listingId], references: [id], onDelete: Cascade, map: "ListingImage_listingId_fkey")
+
+  @@index([listingId], map: "ListingImage_listingId_fkey")
+}
+
+model location {
+  id        Int       @id @default(autoincrement())
+  county    String
+  city      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  listing   listing[]
+
+  @@unique([county, city], map: "Location_county_city_key")
+}
+
+model message {
+  id                            Int      @id @default(autoincrement())
+  senderId                      Int
+  receiverId                    Int
+  listingId                     Int
+  message                       String   @db.Text
+  isRead                        Boolean  @default(false)
+  createdAt                     DateTime @default(now())
+  deletedForReceiver            Boolean  @default(false)
+  deletedForSender              Boolean  @default(false)
+  listing                       listing  @relation(fields: [listingId], references: [id], map: "Message_listingId_fkey")
+  user_message_receiverIdTouser user     @relation("message_receiverIdTouser", fields: [receiverId], references: [id], map: "Message_receiverId_fkey")
+  user_message_senderIdTouser   user     @relation("message_senderIdTouser", fields: [senderId], references: [id], map: "Message_senderId_fkey")
+
+  @@index([listingId], map: "Message_listingId_fkey")
+  @@index([receiverId], map: "Message_receiverId_fkey")
+  @@index([senderId], map: "Message_senderId_fkey")
+}
+
+model notification {
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  type      notification_type
+  title     String
+  content   String?           @db.Text
+  isRead    Boolean           @default(false)
+  relatedId Int?
+  createdAt DateTime          @default(now())
+  user      user              @relation(fields: [userId], references: [id], map: "Notification_userId_fkey")
+
+  @@index([userId], map: "Notification_userId_fkey")
+}
+
+model payment {
+  id            Int                 @id @default(autoincrement())
+  userId        Int
+  amount        Decimal             @db.Decimal(10, 2)
+  currency      payment_currency    @default(RON)
+  paymentType   payment_paymentType
+  status        payment_status      @default(PENDING)
+  transactionId String?
+  paymentMethod String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime
+  user          user                @relation(fields: [userId], references: [id], map: "Payment_userId_fkey")
+
+  @@index([userId], map: "Payment_userId_fkey")
+}
+
+model premiumsubscription {
+  id            Int                          @id @default(autoincrement())
+  userId        Int
+  planType      premiumsubscription_planType
+  status        premiumsubscription_status   @default(ACTIVE)
+  startDate     DateTime
+  endDate       DateTime
+  autoRenew     Boolean                      @default(false)
+  paymentMethod String?
+  createdAt     DateTime                     @default(now())
+  updatedAt     DateTime
+  user          user                         @relation(fields: [userId], references: [id], map: "PremiumSubscription_userId_fkey")
+
+  @@index([userId], map: "PremiumSubscription_userId_fkey")
+}
+
+model report {
+  id          Int           @id @default(autoincrement())
+  reporterId  Int
+  listingId   Int
+  reason      report_reason
+  description String?       @db.Text
+  status      report_status @default(PENDING)
+  createdAt   DateTime      @default(now())
+  resolvedAt  DateTime?
+  listing     listing       @relation(fields: [listingId], references: [id], map: "Report_listingId_fkey")
+  user        user          @relation(fields: [reporterId], references: [id], map: "Report_reporterId_fkey")
+
+  @@index([listingId], map: "Report_listingId_fkey")
+  @@index([reporterId], map: "Report_reporterId_fkey")
+}
+
+model user {
+  id                               Int                   @id @default(autoincrement())
+  email                            String                @unique(map: "User_email_key")
+  hashedPassword                   String
+  firstName                        String?
+  lastName                         String?
+  phone                            String?
+  role                             user_role             @default(USER)
+  status                           user_status           @default(ACTIVE)
+  emailVerified                    Boolean               @default(false)
+  phoneVerified                    Boolean               @default(false)
+  createdAt                        DateTime              @default(now())
+  updatedAt                        DateTime
+  lastLogin                        DateTime?
+  avatar                           String?
+  address                          String?
+  city                             String?
+  notifyEmail                      Boolean               @default(true)
+  notifyPhone                      Boolean               @default(false)
+  county                           String?
+  favorite                         favorite[]
+  listing                          listing[]
+  message_message_receiverIdTouser message[]             @relation("message_receiverIdTouser")
+  message_message_senderIdTouser   message[]             @relation("message_senderIdTouser")
+  notification                     notification[]
+  payment                          payment[]
+  premiumsubscription              premiumsubscription[]
+  report                           report[]
+  usersettings                     usersettings?
+
+  @@index([email], map: "User_email_idx")
+  @@index([phone], map: "User_phone_idx")
+  @@index([role], map: "User_role_idx")
+  @@index([status], map: "User_status_idx")
+}
+
+model usersettings {
+  id                     Int                             @id @default(autoincrement())
+  userId                 Int                             @unique(map: "UserSettings_userId_key")
+  emailNotifications     Boolean                         @default(true)
+  pushNotifications      Boolean                         @default(true)
+  newsletterSubscription Boolean                         @default(false)
+  language               String                          @default("ro")
+  theme                  String                          @default("light")
+  currencyPreference     usersettings_currencyPreference @default(RON)
+  createdAt              DateTime                        @default(now())
+  updatedAt              DateTime
+  user                   user                            @relation(fields: [userId], references: [id], map: "UserSettings_userId_fkey")
+}
+
+model listingvalidation {
+  id        Int      @id @default(autoincrement())
+  listingId Int
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  validated Boolean  @default(false)
+  listing   listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([token])
+}
+
+enum notification_type {
+  MESSAGE
+  FAVORITE
+  PRICE_CHANGE
+  STATUS_UPDATE
+  SYSTEM
+}
+
+enum premiumsubscription_planType {
+  BASIC
+  PREMIUM
+  BUSINESS
+}
+
+enum payment_currency {
+  EUR
+  RON
+  USD
+  GBP
+}
+
+enum premiumsubscription_status {
+  ACTIVE
+  EXPIRED
+  CANCELED
+}
+
+enum report_reason {
+  SPAM
+  OFFENSIVE
+  ILLEGAL
+  FAKE
+  OTHER
+}
+
+enum payment_paymentType {
+  SUBSCRIPTION
+  PROMOTION
+  FEATURE
+}
+
+enum payment_status {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum report_status {
+  PENDING
+  REVIEWED
+  RESOLVED
+}
+
+enum user_role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum listing_currency {
+  EUR
+  RON
+  USD
+  GBP
+}
+
+enum user_status {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum usersettings_currencyPreference {
+  EUR
+  RON
+  USD
+  GBP
+}
+
+enum listing_condition {
+  NOU
+  UTILIZAT
+  REFACUT
+}
+
+enum listing_status {
+  DRAFT
+  PENDING
+  ACTIVE
+  EXPIRED
+  SOLD
+  INACTIVE
+}

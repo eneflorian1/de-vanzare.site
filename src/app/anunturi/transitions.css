@@ -1,0 +1,72 @@
+/* Transition effects for elements in the advertisements page */
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.transition-colors {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.3s ease-in forwards;
+}
+
+.fade-out {
+  opacity: 1;
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Specific transitions for currency buttons */
+.currency-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.currency-button:hover {
+  transform: translateY(-1px);
+}
+
+.currency-button.active {
+  transform: scale(1.05);
+}
+
+/* Smooth transitions for filters */
+.filter-chip {
+  transition: all 0.2s ease;
+}
+
+.filter-chip:hover {
+  transform: translateY(-1px);
+}
+
+/* Layout transitions */
+.layout-transition {
+  transition: all 0.3s ease-in-out;
+}

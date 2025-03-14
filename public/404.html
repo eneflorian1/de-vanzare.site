@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eroare 404 - Pagină negăsită</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .error-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        h1 {
+            color: #3498db;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .actions {
+            margin-top: 30px;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .error-code {
+            font-size: 120px;
+            font-weight: bold;
+            color: #f1f1f1;
+            margin: 0;
+            line-height: 1;
+        }
+        .suggestions {
+            margin-top: 30px;
+            text-align: left;
+            padding: 0 20px;
+        }
+        .suggestions li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <p class="error-code">404</p>
+        <h1>Pagină negăsită</h1>
+        <p>Ne pare rău, dar pagina pe care o căutați nu există sau a fost mutată.</p>
+        
+        <div class="suggestions">
+            <p>Posibile motive:</p>
+            <ul>
+                <li>URL-ul a fost introdus greșit</li>
+                <li>Pagina a fost mutată sau ștearsă</li>
+                <li>Linkul pe care l-ați urmat este învechit</li>
+            </ul>
+        </div>
+        
+        <div class="actions">
+            <a href="/" class="btn">Înapoi la pagina principală</a>
+            <a href="javascript:history.back()" class="btn">Înapoi la pagina anterioară</a>
+        </div>
+    </div>
+</body>
+</html> 

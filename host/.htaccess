@@ -1,0 +1,6 @@
+# Enable rewriting
+RewriteEngine On
+
+# Redirect all requests to Node.js application
+RewriteCond %{REQUEST_URI} !^/server.js
+RewriteRule ^(.*)$ server.js [L,QSA] 
